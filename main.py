@@ -4,6 +4,7 @@ from agents.drone_eye import DroneEye
 from agents.command_center import CommandCenter
 from agents.medic_agent import MedicAgent
 from agents.supply_bot import SupplyBot
+from visualizer import render_grid
 
 def main():
     env = RescueVerseEnv()
@@ -27,29 +28,43 @@ def main():
         "delivered_kits": False
     }
     env.message_bus["agents"] = env.agents
+    
+    rescued_count = 0
 
     # Simulation loop
     for step in range(15):
         print(f"\n--- Step {step + 1} ---")
-        env.render()
 
-        # DroneEye → scan survivors
-        drone.act(env.map.grid, env.message_bus)
-        
+        # Count survivors remaining
+        survivors_remaining = sum(row.count('S') for row in env.map.grid)
+        rescued_count = 3 - survivors_remaining  # Assume 3 total
+
+        # Track agent phases
+        agent_states = {}
+        for agent in env.agents:
+            if agent.name.startswith("RescueBot"):
+                agent_states[agent.name] = getattr(agent, "phase", "unknown")
+
+        # 👇 Render with stats
+        render_grid(env.map.grid, step + 1, env.total_reward, rescued_count, agent_states)
+
+        # Run agents
         env.message_bus["agents"] = env.agents
-
-        # CommandCenter → assign RescueBot and MedicAgent
+        drone.act(env.map.grid, env.message_bus)
         commander.act(env.map.grid, env.message_bus)
 
         if env.message_bus["to_rescuebot"]:
-            rescue_bot.receive_task(env.message_bus["to_rescuebot"].pop(0))
+            for bot in [a for a in env.agents if a.name.startswith("RescueBot") and a.phase == "waiting"]:
+                if env.message_bus["to_rescuebot"]:
+                    task = env.message_bus["to_rescuebot"].pop(0)
+                    bot.receive_task(task)
 
         if env.message_bus["to_medic"]:
             medic.receive_task(env.message_bus["to_medic"].pop(0))
 
-        # Agents take turns
         medic.act(env.map.grid, env.message_bus)
         supply.act(env.map.grid, env.message_bus)
+
         for agent in env.agents:
             if agent.name.startswith("RescueBot"):
                 agent.act(env.map.grid, env.message_bus)
