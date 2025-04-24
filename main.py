@@ -46,7 +46,16 @@ def main():
                 agent_states[agent.name] = getattr(agent, "phase", "unknown")
 
         # 👇 Render with stats
-        render_grid(env.map.grid, step + 1, env.total_reward, rescued_count, agent_states)
+        rescue_bots = [a for a in env.agents if a.name.startswith("RescueBot")]
+
+        render_grid(
+            env.map.grid,
+            step + 1,
+            env.total_reward,
+            rescued_count,
+            {bot.name: bot.phase for bot in rescue_bots},
+            rescue_bots  # 👈 NEW: full agent objects list
+        )
 
         # Run agents
         env.message_bus["agents"] = env.agents

@@ -11,6 +11,10 @@ class RescueBot:
         self.target = None
         self.drop_point = (5, 9)
         self.path = []
+        self.steps_taken = 0
+        self.rescues_done = 0
+        self.prev_position = (x, y)
+
 
     def receive_task(self, target):
         self.target = target
@@ -47,6 +51,8 @@ class RescueBot:
     def follow_path(self, grid):
         if self.path:
             next_step = self.path.pop(0)
+            if (self.x, self.y) != next_step:
+                self.steps_taken += 1
             nx, ny = next_step
             dx = nx - self.x
             dy = ny - self.y

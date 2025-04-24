@@ -35,7 +35,8 @@ def pickup(agent, grid):
     if not agent.carrying_survivor:
         print(f"{agent.name} picked up a survivor at ({agent.x}, {agent.y})!")
         agent.carrying_survivor = True
-
+        if hasattr(agent, "rescues_done"):
+            agent.rescues_done += 1
         # Optional: Remove S from map if it's still there
         if grid[agent.y][agent.x] == 'S':
             grid[agent.y][agent.x] = agent.name[0]
