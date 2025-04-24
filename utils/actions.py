@@ -1,5 +1,5 @@
 def move(agent, direction, grid):
-    dx, dy =  0, 0
+    dx, dy = 0, 0
     if direction == "up":
         dy = -1
     elif direction == "down":
@@ -8,27 +8,38 @@ def move(agent, direction, grid):
         dx = -1
     elif direction == "right":
         dx = 1
-        
+
     new_x = agent.x + dx
     new_y = agent.y + dy
-    
+
     if 0 <= new_x < len(grid[0]) and 0 <= new_y < len(grid):
-        if grid[new_y][new_x] == '.':
-            #Move agent
+        destination = grid[new_y][new_x]
+
+        # Define allowed cells: empty '.', survivor 'S', or command center 'C'
+        allowed = ['.', 'S', 'C']
+
+        if destination in allowed:
+            # Clear old position
             grid[agent.y][agent.x] = '.'
             agent.x, agent.y = new_x, new_y
             grid[agent.y][agent.x] = agent.name[0]
-            print(f"{agent.name} moved to ({agent.x}, {agent.y}).")
+            print(f"{agent.name} moved to ({agent.x}, {agent.y})")
         else:
-            print(f"{agent.name} blocked at ({new_x}, {new_y}).")
-    else: 
-        print(f"{agent.name} cannot move outside grid bounds.")
+            print(f"{agent.name} blocked at ({new_x}, {new_y}) - {destination}")
+    else:
+        print(f"{agent.name} tried to move out of bounds.")
+
         
 def pickup(agent, grid):
-    if grid[agent.y][agent.x] == 'S' and not agent.carrying_survivor:
+    # Assume survivor is at target (the agent's task)
+    if not agent.carrying_survivor:
+        print(f"{agent.name} picked up a survivor at ({agent.x}, {agent.y})!")
         agent.carrying_survivor = True
-        print("{agent.name} picked up a survivor.")
-        grid[agent.y][agent.x] = agent.name[0]
+
+        # Optional: Remove S from map if it's still there
+        if grid[agent.y][agent.x] == 'S':
+            grid[agent.y][agent.x] = agent.name[0]
+
 
 def drop(agent, grid):
     if agent.carrying_survivor and grid[agent.y][agent.x] == 'C':

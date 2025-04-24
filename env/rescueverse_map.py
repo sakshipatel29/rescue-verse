@@ -1,3 +1,5 @@
+import random
+
 class RescueVerseMap:
     def __init__(self, width=10, height=10):
         self.width = width
@@ -9,14 +11,22 @@ class RescueVerseMap:
         return [['.' for _ in range(self.width)] for _ in range(self.height)]
     
     def place_initial_objects(self):
-        self.grid[0][4] = '#'  # Obstacle
-        self.grid[0][6] = 'S'  # Survivor
-        self.grid[3][2] = 'F'  # First Aid
-        self.grid[5][5] = 'R'  # RescueBot
-        self.grid[7][5] = 'T'  # SupplyBot
-        self.grid[7][6] = 'M'  # Medic
-        self.grid[8][1] = 'D'  # DroneEye
+        self.grid[5][5] = 'R'  # RescueBot 1
         self.grid[9][5] = 'C'  # CommandCenter
+        self.grid[7][5] = 'T'  # SupplyBot
+        self.grid[7][6] = 'M'  # MedicAgent
+        self.grid[8][1] = 'D'  # DroneEye
+        self.grid[3][2] = 'F'  # First Aid
+
+        # Place multiple survivors
+        survivors = [(6, 0), (1, 2), (8, 3)]
+        for (x, y) in survivors:
+            self.grid[y][x] = 'S'
+
+        # Add rubble
+        self.grid[2][5] = '#'
+        self.grid[3][5] = '#'
+        self.grid[4][5] = '#'
         
     def render(self):
         print("\n=== RescueVerse World Map ===")
