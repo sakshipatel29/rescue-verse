@@ -2,11 +2,11 @@ def move(agent, direction, grid):
     dx, dy =  0, 0
     if direction == "up":
         dy = -1
-    elif direction = "down":
+    elif direction == "down":
         dy = 1
-    elif direction = "left":
+    elif direction == "left":
         dx = -1
-    elif direction = "right":
+    elif direction == "right":
         dx = 1
         
     new_x = agent.x + dx

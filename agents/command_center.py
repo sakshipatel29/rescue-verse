@@ -1,19 +1,17 @@
-
 class CommandCenter:
     def __init__(self):
+        self.name = "CommandCenter"
         self.known_survivors = []
-        self.task_queue = []
-    
-    def receive_scan_reports(self, reports):
-        for r in reports:
-            if r not in self.known_survivors:
-                self.known_survivors.append(r)
-                self.task_queue.append(r)
-                
-    def assign_task(self, agents):
-        while self.task_queue and agents:
-            target = self.task_queue.pop(0)
-            agent = agents.pop(0)
-            agent.receive_task(target)
-            print(f"{self.name} assigned {target} to {agent.name}")
-            
+        self.assigned = False
+
+    def act(self, grid, message_bus):
+        reports = message_bus.get("scan_reports", [])
+        for coord in reports:
+            if coord not in self.known_survivors:
+                self.known_survivors.append(coord)
+
+        if self.known_survivors and not self.assigned:
+            task = self.known_survivors.pop(0)
+            message_bus["to_rescuebot"] = [task]
+            print(f"{self.name} assigned RescueBot to {task}")
+            self.assigned = True
